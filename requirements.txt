@@ -11,4 +11,5 @@ dash-bootstrap-components
 python-dotenv
 SQLAlchemy>=2.0.0
 Werkzeug
-gunicorn 
+gunicorn
+psycopg2-binary 
