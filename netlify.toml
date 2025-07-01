@@ -3,7 +3,7 @@
   publish = "."
 
 [build.environment]
-  PYTHON_VERSION = "3.11.8"
+  # Let Netlify use its default Python version
 
 # If using Netlify Functions for Flask, you would add a [[redirects]] block here.
 # [[redirects]]
