@@ -12,4 +12,5 @@ python-dotenv
 SQLAlchemy>=2.0.0
 Werkzeug
 gunicorn
-psycopg2-binary 
+psycopg2-binary
+mysql-connector-python 
