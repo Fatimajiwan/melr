@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, send_file, abort
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, send_file, abort, current_app, session
 from flask_login import login_required, current_user
 from app.models.project import Project
 from app.models.indicator import Indicator
@@ -9,8 +9,9 @@ from datetime import datetime
 import json
 from werkzeug.utils import secure_filename
 import os
-import pandas as pd
-from io import BytesIO
+import csv
+from io import BytesIO, StringIO
+import openpyxl
 
 main = Blueprint('main', __name__)
 
@@ -861,14 +862,23 @@ def upload_data():
         
         # Process the file based on its type
         if filename.endswith('.csv'):
-            df = pd.read_csv(file_path)
+            # Use csv module for CSV files
+            with open(file_path, 'r', encoding='utf-8') as csvfile:
+                csv_reader = csv.reader(csvfile)
+                data = list(csv_reader)
         elif filename.endswith('.xlsx'):
-            df = pd.read_excel(file_path)
+            # Use openpyxl for Excel files
+            workbook = openpyxl.load_workbook(file_path)
+            sheet = workbook.active
+            data = []
+            for row in sheet.iter_rows(values_only=True):
+                if any(cell is not None for cell in row):  # Skip empty rows
+                    data.append(row)
         else:
             return jsonify({'error': 'Unsupported file format'}), 400
         
-        # Store the processed data in the session
-        session['uploaded_data'] = df.to_json()
+        # Store the processed data in the session as JSON
+        session['uploaded_data'] = json.dumps(data)
         
         return jsonify({'message': 'File uploaded successfully'}), 200
     

@@ -1,9 +1,14 @@
 from flask import Blueprint, render_template, jsonify, request, send_file
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
-import pandas as pd
-from io import BytesIO
+import csv
+from io import BytesIO, StringIO
 import json
+import openpyxl
+from app.models.project import Project
+from app.models.indicator import Indicator
+from app.models.report import Report, Export
+from app import db
 
 reports = Blueprint('reports', __name__)
 
@@ -72,12 +77,21 @@ def upload_data():
         try:
             # Read the file based on its extension
             if file.filename.endswith('.xlsx'):
-                df = pd.read_excel(file)
+                # Use openpyxl for Excel files
+                workbook = openpyxl.load_workbook(file)
+                sheet = workbook.active
+                data = []
+                for row in sheet.iter_rows(values_only=True):
+                    if any(cell is not None for cell in row):  # Skip empty rows
+                        data.append(row)
             else:
-                df = pd.read_csv(file)
+                # Use csv module for CSV files
+                content = file.read().decode('utf-8')
+                csv_reader = csv.reader(StringIO(content))
+                data = list(csv_reader)
             
             # Process the data
-            process_uploaded_data(df)
+            process_uploaded_data(data)
             
             return jsonify({'message': 'File uploaded successfully'}), 200
         except Exception as e:
@@ -250,7 +264,7 @@ def get_chart_data(project_id=None, indicator_id=None, date_range=None):
     # Implement chart data generation
     pass
 
-def process_uploaded_data(df):
+def process_uploaded_data(data):
     # Implement data processing logic
     pass
 
