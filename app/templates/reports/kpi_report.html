@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}KPI Performance Report - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_reports', project_id=project.id) }}">Reports</a></li>
+                    <li class="breadcrumb-item active">KPI Performance Report</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">KPI Performance Report</h1>
+                    <p class="text-muted">Comprehensive analysis of project KPIs and indicators</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Executive Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Key Findings</h6>
+                            <ul class="list-unstyled">
+                                {% for finding in key_findings %}
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    {{ finding }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Recommendations</h6>
+                            <ul class="list-unstyled">
+                                {% for recommendation in recommendations %}
+                                <li class="mb-2">
+                                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                                    {{ recommendation }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Performance Overview -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">KPI Performance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>KPI</th>
+                                    <th>Target</th>
+                                    <th>Current</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for kpi in kpis %}
+                                <tr>
+                                    <td>{{ kpi.name }}</td>
+                                    <td>{{ kpi.target }}</td>
+                                    <td>{{ kpi.current_value }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if kpi.progress >= 100 %}bg-success{% elif kpi.progress >= 75 %}bg-info{% elif kpi.progress >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ kpi.progress }}%;" 
+                                                 aria-valuenow="{{ kpi.progress }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ kpi.progress }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if kpi.status == 'On Track' %}bg-success{% elif kpi.status == 'At Risk' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ kpi.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-arrow-{{ kpi.trend }} text-{{ kpi.trend_color }}"></i>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trend Analysis -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Trend Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analysis -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Detailed Analysis</h5>
+                </div>
+                <div class="card-body">
+                    {% for kpi in kpis %}
+                    <div class="mb-4">
+                        <h6>{{ kpi.name }}</h6>
+                        <p>{{ kpi.analysis }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Contributing Factors</h6>
+                                <ul>
+                                    {% for factor in kpi.contributing_factors %}
+                                    <li>{{ factor }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Challenges</h6>
+                                <ul>
+                                    {% for challenge in kpi.challenges %}
+                                    <li>{{ challenge }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function exportToPDF() {
+    // Implement PDF export functionality
+    window.print();
+}
+
+function exportToExcel() {
+    // Implement Excel export functionality
+    alert('Excel export functionality will be implemented soon.');
+}
+
+// Initialize trend chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels|tojson }},
+            datasets: {{ trend_datasets|tojson }}
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'KPI Trends Over Time'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

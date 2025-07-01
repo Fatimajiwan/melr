@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Logical Framework</li>
+        </ol>
+    </nav>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Logical Framework</h1>
+            <p class="lead">Project: {{ project.name }}</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_dashboard', project_id=project.id) }}">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('main.project_logframe', project_id=project.id) }}">Logical Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_toc', project_id=project.id) }}">Theory of Change</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_results', project_id=project.id) }}">Results Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_indicators', project_id=project.id) }}">Indicators</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Logical Framework Matrix</h5>
+                    
+                    <div class="logframe-summary mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Goal</h6>
+                                        <p class="card-text">National human capital development and equity in higher education</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Purpose</h6>
+                                        <p class="card-text">Expand access to higher education and boost youth employment across Tanzania through university-level scholarships</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered logframe-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 20%;">Narrative Summary</th>
+                                    <th style="width: 30%;">Objectively Verifiable Indicators</th>
+                                    <th style="width: 25%;">Means of Verification</th>
+                                    <th style="width: 25%;">Important Assumptions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Goal Row -->
+                                <tr>
+                                    <td class="table-primary">
+                                        <strong>Goal:</strong>
+                                        <p>National human capital development and equity in higher education</p>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Higher employment rates for graduates</li>
+                                            <li>Increased alumni engagement and contribution to community development</li>
+                                            <li>Gender balance in higher education participation</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Alumni employment surveys</li>
+                                            <li>Community impact assessments</li>
+                                            <li>National education statistics</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Political stability in Tanzania</li>
+                                            <li>Economic growth creating job opportunities</li>
+                                            <li>Continued government support for education</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Purpose Row -->
+                                <tr>
+                                    <td class="table-info">
+                                        <strong>Purpose:</strong>
+                                        <p>Expand access to higher education and boost youth employment across Tanzania through university-level scholarships</p>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>≥ 95% retention rate</li>
+                                            <li>≥ 90% of students maintaining GPA ≥ 3.5</li>
+                                            <li>≥ 60% of scholars involved in extracurricular activities</li>
+                                            <li>Unemployment rate among alumni ≤ 10%</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>University transcripts</li>
+                                            <li>Program records</li>
+                                            <li>Student activity reports</li>
+                                            <li>Alumni tracking surveys</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Students remain committed to their studies</li>
+                                            <li>Universities maintain quality education</li>
+                                            <li>Job market receptive to graduates</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Outputs Rows -->
+                                <tr>
+                                    <td class="table-success">
+                                        <strong>Output 1:</strong>
+                                        <p>Improved academic performance</p>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>95% of students maintaining GPA ≥ 3.5</li>
+                                            <li>≥ 95% of students progressing without repeating courses</li>
+                                            <li>≥ 80% of students using academic support services</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Official transcripts</li>
+                                            <li>End-of-year academic reports</li>
+                                            <li>Tutoring sign-ins, advisor meeting logs</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Students utilize available support services</li>
+                                            <li>Universities provide accurate and timely records</li>
+                                            <li>Academic standards remain consistent</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td class="table-success">
+                                        <strong>Output 2:</strong>
+                                        <p>Enhanced engagement and leadership development</p>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>≥ 60% of scholars in extracurricular activities</li>
+                                            <li>≥ 30% of students in leadership roles</li>
+                                            <li>≥ 80% participation in mentorship program</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Activity forms, club participation logs</li>
+                                            <li>Verified leadership rosters</li>
+                                            <li>Mentor reports, check-in logs</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Students have time for extracurricular engagement</li>
+                                            <li>Mentors remain committed to the program</li>
+                                            <li>Universities support student organizations</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td class="table-success">
+                                        <strong>Output 3:</strong>
+                                        <p>Professional readiness and employability</p>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>≥ 75% attendance at career development events</li>
+                                            <li>≥ 70% completing digital literacy training</li>
+                                            <li>≥ 85% satisfaction with program support</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Workshop attendance sheets</li>
+                                            <li>Digital training certificates</li>
+                                            <li>Anonymous feedback surveys</li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            <li>Career development opportunities available</li>
+                                            <li>Digital training resources accessible</li>
+                                            <li>Students value professional development</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Activities Section -->
+                                <tr>
+                                    <td class="table-warning" colspan="4">
+                                        <strong>Activities</strong>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="4">
+                                        <strong>For Output 1: Improved academic performance</strong>
+                                        <div class="ms-3">
+                                            <ul>
+                                                <li>Provide academic tutoring and support services <span class="badge bg-success">Active</span></li>
+                                                <li>Conduct regular academic progress monitoring <span class="badge bg-success">Active</span></li>
+                                                <li>Facilitate faculty advisor connections <span class="badge bg-primary">In Progress</span></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="4">
+                                        <strong>For Output 2: Enhanced engagement and leadership development</strong>
+                                        <div class="ms-3">
+                                            <ul>
+                                                <li>Organize leadership workshops <span class="badge bg-success">Active</span></li>
+                                                <li>Connect scholars with mentors <span class="badge bg-success">Active</span></li>
+                                                <li>Support participation in student organizations <span class="badge bg-primary">In Progress</span></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="4">
+                                        <strong>For Output 3: Professional readiness and employability</strong>
+                                        <div class="ms-3">
+                                            <ul>
+                                                <li>Conduct career development workshops <span class="badge bg-success">Active</span></li>
+                                                <li>Provide digital skills training <span class="badge bg-primary">In Progress</span></li>
+                                                <li>Facilitate internship and job placement <span class="badge bg-secondary">Planned</span></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.logframe-table th, .logframe-table td {
+    vertical-align: top;
+}
+
+.logframe-table ul {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+.logframe-summary {
+    margin: 20px 0;
+}
+</style>
+{% endblock %} 

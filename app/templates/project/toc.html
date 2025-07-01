@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Theory of Change</li>
+        </ol>
+    </nav>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Theory of Change</h1>
+            <p class="lead">Project: {{ project.name }}</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_dashboard', project_id=project.id) }}">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_logframe', project_id=project.id) }}">Logical Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('main.project_toc', project_id=project.id) }}">Theory of Change</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_results', project_id=project.id) }}">Results Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_indicators', project_id=project.id) }}">Indicators</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Theory of Change</h5>
+                    <p class="card-text">If talented Tanzanian youth receive equitable access to higher education through scholarships, and are supported academically and through engagement opportunities, then they will graduate with strong academic and professional skills, which leads to improved employability, enhanced civic participation, and long-term national development.</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Problem Statement</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Talented Tanzanian youth lack access to higher education and mentorship, hindering their academic and professional growth. This limits their employability, civic participation, and contribution to national development.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="toc-diagram mt-4">
+                        <div class="row g-2">
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-header bg-secondary text-white text-center">
+                                        <h6 class="mb-0">Inputs</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li>• Scholarships</li>
+                                            <li>• Mentors</li>
+                                            <li>• Training</li>
+                                            <li>• Partner Universities</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <div class="toc-arrow">→</div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-header bg-info text-white text-center">
+                                        <h6 class="mb-0">Activities</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li>• Workshops</li>
+                                            <li>• Trainings</li>
+                                            <li>• Disbursements</li>
+                                            <li>• Mentorship</li>
+                                            <li>• Tracking Progress</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <div class="toc-arrow">→</div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h6 class="mb-0">Outputs</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li>• Number of target beneficiaries</li>
+                                            <li>• % of graduates</li>
+                                            <li>• Completed trainings</li>
+                                            <li>• Mentorship sessions</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <div class="toc-arrow">→</div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-header bg-warning text-dark text-center">
+                                        <h6 class="mb-0">Short-term Outcomes</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li>• Improved academic performance</li>
+                                            <li>• Increase of engagement in mentorship programs</li>
+                                            <li>• Enhanced participation in workshops</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <div class="toc-arrow">→</div>
+                            </div>
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-header bg-success text-white text-center">
+                                        <h6 class="mb-0">Long-term Outcomes</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li>• Higher employment rates for graduates</li>
+                                            <li>• Increased alumni engagement</li>
+                                            <li>• Contribution to community development</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col text-center">
+                                <div class="toc-arrow-down">↓</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="card">
+                                    <div class="card-header bg-danger text-white text-center">
+                                        <h6 class="mb-0">Impact</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <p class="mb-0"><strong>National human capital development and equity in higher education</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Key Assumptions</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Input to Activities</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li>Continued funding availability</li>
+                                            <li>Qualified mentors can be recruited</li>
+                                            <li>Partner universities maintain quality standards</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Activities to Outcomes</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li>Students actively participate in programs</li>
+                                            <li>Mentorship relationships are effective</li>
+                                            <li>Financial support is sufficient</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Outcomes to Impact</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li>Job market receptive to graduates</li>
+                                            <li>Political and economic stability</li>
+                                            <li>Alumni remain engaged with foundation</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>M&E Calendar</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Planned M&E Activities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>May – June</td>
+                                        <td>Finalize KPIs and update the M&E Plan</td>
+                                    </tr>
+                                    <tr>
+                                        <td>July – August</td>
+                                        <td>Build survey forms and academic/advisory support logs</td>
+                                    </tr>
+                                    <tr>
+                                        <td>September – October</td>
+                                        <td>Monitor scholar application cycle</td>
+                                    </tr>
+                                    <tr>
+                                        <td>November – December</td>
+                                        <td>Begin baseline data collection (GPA, participation)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>January – February</td>
+                                        <td>Conduct mid-year check-in and internal reflection meeting</td>
+                                    </tr>
+                                    <tr>
+                                        <td>March – April</td>
+                                        <td>Evaluate year-end KPI performance and prepare Annual Report</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.toc-diagram {
+    margin: 20px 0;
+}
+
+.toc-arrow {
+    font-size: 24px;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.toc-arrow-down {
+    font-size: 24px;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.card ul {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+</style>
+{% endblock %} 

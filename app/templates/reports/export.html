@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.reports') }}">Reports</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Export Data</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Export Data</h1>
+                    <p class="text-muted">Export project data in various formats</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Export Options</h5>
+                    <form id="exportForm">
+                        <div class="mb-3">
+                            <label class="form-label">Data Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="exportProjects" name="dataType" value="projects" checked>
+                                <label class="form-check-label" for="exportProjects">
+                                    Projects
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="exportIndicators" name="dataType" value="indicators" checked>
+                                <label class="form-check-label" for="exportIndicators">
+                                    Indicators
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="exportProgress" name="dataType" value="progress" checked>
+                                <label class="form-check-label" for="exportProgress">
+                                    Progress Data
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="project" class="form-label">Project Filter</label>
+                            <select class="form-select" id="project" name="project">
+                                <option value="">All Projects</option>
+                                {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="dateRange" class="form-label">Date Range</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" id="startDate" name="startDate">
+                                <span class="input-group-text">to</span>
+                                <input type="date" class="form-control" id="endDate" name="endDate">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Export Format</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="formatExcel" value="excel" checked>
+                                <label class="form-check-label" for="formatExcel">
+                                    Excel (.xlsx)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="formatCsv" value="csv">
+                                <label class="form-check-label" for="formatCsv">
+                                    CSV
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="formatJson" value="json">
+                                <label class="form-check-label" for="formatJson">
+                                    JSON
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i>Export Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Export History</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Export Date</th>
+                                    <th>Data Types</th>
+                                    <th>Format</th>
+                                    <th>Size</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for export in export_history %}
+                                <tr>
+                                    <td>{{ export.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ export.data_types|join(', ') }}</td>
+                                    <td>{{ export.format.upper() }}</td>
+                                    <td>{{ export.file_size }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.download_export', export_id=export.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date range to current month
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+    document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+    document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
+    
+    // Handle form submission
+    document.getElementById('exportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const format = document.querySelector('input[name="format"]:checked').value;
+        
+        // Get selected data types
+        const dataTypes = Array.from(document.querySelectorAll('input[name="dataType"]:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (dataTypes.length === 0) {
+            alert('Please select at least one data type to export.');
+            return;
+        }
+        
+        fetch('/api/export-data', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            }
+            throw new Error('Network response was not ok');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `export_${new Date().toISOString().split('T')[0]}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Refresh the page to update export history
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while exporting the data.');
+        });
+    });
+});
+</script>
+{% endblock %} 

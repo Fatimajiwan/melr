@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - M&E Calendar{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">M&E Calendar</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">M&E Calendar</h1>
+                    <p class="text-muted">Schedule and manage monitoring and evaluation activities</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                    <i class="fas fa-plus"></i> Add Event
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Filters and Categories -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Event Types</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterDataCollection" checked>
+                            <label class="form-check-label" for="filterDataCollection">
+                                Data Collection
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterReporting" checked>
+                            <label class="form-check-label" for="filterReporting">
+                                Reporting
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterReview" checked>
+                            <label class="form-check-label" for="filterReview">
+                                Review Meetings
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterTraining" checked>
+                            <label class="form-check-label" for="filterTraining">
+                                Training
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterUpcoming" checked>
+                            <label class="form-check-label" for="filterUpcoming">
+                                Upcoming
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filterCompleted" checked>
+                            <label class="form-check-label" for="filterCompleted">
+                                Completed
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Events</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="upcomingEventsList">
+                        <!-- Events will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Calendar View -->
+            <div class="card">
+                <div class="card-body">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add M&E Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm" method="POST" action="{{ url_for('main.add_project_calendar_event', project_id=project.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Event Title</label>
+                        <input type="text" class="form-control" id="eventTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <select class="form-select" id="eventType" name="type" required>
+                            <option value="data_collection">Data Collection</option>
+                            <option value="reporting">Reporting</option>
+                            <option value="review">Review Meeting</option>
+                            <option value="training">Training</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventStartDate" class="form-label">Start Date</label>
+                        <input type="datetime-local" class="form-control" id="eventStartDate" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventEndDate" class="form-label">End Date</label>
+                        <input type="datetime-local" class="form-control" id="eventEndDate" name="end_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventLocation" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="eventLocation" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventParticipants" class="form-label">Participants</label>
+                        <select class="form-select" id="eventParticipants" name="participants" multiple>
+                            <option value="moe_team">M&E Team</option>
+                            <option value="project_team">Project Team</option>
+                            <option value="stakeholders">Stakeholders</option>
+                            <option value="partners">Partners</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-action="add-event">Save Event</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include FullCalendar -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize FullCalendar
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: '/api/calendar/events?project_id={{ project.id }}',
+        eventClick: function(info) {
+            // Handle event click
+            showEventDetails(info.event);
+        },
+        eventDidMount: function(info) {
+            // Add tooltips to events
+            new bootstrap.Tooltip(info.el, {
+                title: info.event.title,
+                placement: 'top',
+                trigger: 'hover',
+                container: 'body'
+            });
+        }
+    });
+    calendar.render();
+
+    // Load upcoming events
+    loadUpcomingEvents();
+
+    // Handle filters
+    document.querySelectorAll('.form-check-input').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateCalendarFilters();
+        });
+    });
+    
+    // Handle form submission via JavaScript
+    const addEventForm = document.getElementById('addEventForm');
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submission intercepted');
+            
+            // Get form data
+            const formData = new FormData(addEventForm);
+            
+            // Convert form data to JSON object
+            const jsonData = {
+                project_id: {{ project.id }},
+                title: formData.get('title'),
+                type: formData.get('type'),
+                start_date: formData.get('start_date'),
+                end_date: formData.get('end_date'),
+                description: formData.get('description'),
+                location: formData.get('location'),
+                participants: formData.get('participants')
+            };
+            
+            console.log('Sending data:', jsonData);
+            
+            // Send data to API
+            fetch('/api/calendar/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': formData.get('csrf_token')
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                // Close modal
+                const modal = document.getElementById('addEventModal');
+                const bootstrapModal = bootstrap.Modal.getInstance(modal);
+                bootstrapModal.hide();
+                
+                // Refresh calendar
+                calendar.refetchEvents();
+                
+                // Show success message
+                alert('Event added successfully!');
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error adding event: ' + error.message);
+            });
+        });
+    }
+    
+    // Add event button click handler
+    const addEventBtn = document.querySelector('[data-action="add-event"]');
+    if (addEventBtn) {
+        addEventBtn.addEventListener('click', function() {
+            console.log('Add event button clicked');
+            document.getElementById('addEventForm').dispatchEvent(new Event('submit'));
+        });
+    }
+});
+
+function loadUpcomingEvents() {
+    fetch('/api/calendar/upcoming?project_id={{ project.id }}')
+        .then(response => response.json())
+        .then(events => {
+            const eventsList = document.getElementById('upcomingEventsList');
+            eventsList.innerHTML = '';
+            
+            events.forEach(event => {
+                const eventDate = new Date(event.start);
+                const eventItem = document.createElement('a');
+                eventItem.href = '#';
+                eventItem.className = 'list-group-item list-group-item-action';
+                eventItem.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${event.title}</h6>
+                        <small>${eventDate.toLocaleDateString()}</small>
+                    </div>
+                    <p class="mb-1">${event.description || ''}</p>
+                    <small class="text-muted">${event.type}</small>
+                `;
+                eventItem.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showEventDetails(event);
+                });
+                eventsList.appendChild(eventItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading upcoming events:', error);
+        });
+}
+
+function updateCalendarFilters() {
+    const filters = {
+        types: {
+            data_collection: document.getElementById('filterDataCollection').checked,
+            reporting: document.getElementById('filterReporting').checked,
+            review: document.getElementById('filterReview').checked,
+            training: document.getElementById('filterTraining').checked
+        },
+        status: {
+            upcoming: document.getElementById('filterUpcoming').checked,
+            completed: document.getElementById('filterCompleted').checked
+        }
+    };
+
+    // Update calendar events based on filters
+    calendar.getEvents().forEach(event => {
+        const eventType = event.extendedProps.type;
+        const isCompleted = event.extendedProps.status === 'completed';
+        
+        const typeVisible = filters.types[eventType];
+        const statusVisible = isCompleted ? filters.status.completed : filters.status.upcoming;
+        
+        event.setProp('display', typeVisible && statusVisible ? 'auto' : 'none');
+    });
+}
+
+function showEventDetails(event) {
+    // Implement event details modal
+    const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+    document.getElementById('eventDetailsTitle').textContent = event.title;
+    document.getElementById('eventDetailsType').textContent = event.extendedProps.type;
+    document.getElementById('eventDetailsDate').textContent = event.start.toLocaleString();
+    document.getElementById('eventDetailsDescription').textContent = event.extendedProps.description || 'No description available';
+    document.getElementById('eventDetailsLocation').textContent = event.extendedProps.location || 'No location specified';
+    modal.show();
+}
+</script>
+{% endblock %} 

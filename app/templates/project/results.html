@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Results Framework</li>
+        </ol>
+    </nav>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Results Framework</h1>
+            <p class="lead">Project: {{ project.name }}</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_dashboard', project_id=project.id) }}">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_logframe', project_id=project.id) }}">Logical Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_toc', project_id=project.id) }}">Theory of Change</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('main.project_results', project_id=project.id) }}">Results Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_indicators', project_id=project.id) }}">Indicators</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-results-tab" data-bs-toggle="pill" data-bs-target="#pills-results" type="button" role="tab" aria-controls="pills-results" aria-selected="true">Results Framework</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-logic-tab" data-bs-toggle="pill" data-bs-target="#pills-logic" type="button" role="tab" aria-controls="pills-logic" aria-selected="false">Logic Model</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="pills-tabContent">
+                        <!-- Results Framework Tab -->
+                        <div class="tab-pane fade show active" id="pills-results" role="tabpanel" aria-labelledby="pills-results-tab">
+                            <h5>Mo Dewji Foundation Education Program Results Framework</h5>
+                            <p>The Results Framework tracks how program activities lead to outputs, outcomes, and ultimately impact.</p>
+                            
+                            <!-- Compact Results Diagram -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-body p-0">
+                                            <div class="results-chain">
+                                                <div class="results-level impact">
+                                                    <h6>Impact</h6>
+                                                    <p>National human capital development and equity in higher education</p>
+                                                </div>
+                                                <div class="results-arrow">↑</div>
+                                                <div class="results-level outcomes">
+                                                    <h6>Outcomes</h6>
+                                                    <ul>
+                                                        <li>Higher employment rates for graduates</li>
+                                                        <li>Increased alumni engagement and contribution</li>
+                                                        <li>Enhanced civic participation</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="results-arrow">↑</div>
+                                                <div class="results-level outputs">
+                                                    <h6>Outputs</h6>
+                                                    <ul>
+                                                        <li>Improved academic performance</li>
+                                                        <li>Enhanced engagement in mentorship</li>
+                                                        <li>Professional skills development</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- KPI Tracking Table -->
+                            <h5>Key Performance Indicators</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>KPI Category</th>
+                                            <th>KPI Name</th>
+                                            <th>Current</th>
+                                            <th>Target</th>
+                                            <th>Progress</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Demographics</td>
+                                            <td>Gender Balance</td>
+                                            <td>47.3%/52.7%</td>
+                                            <td>50/50 ±5%</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 95%;" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Academic Performance</td>
+                                            <td>High Performing Scholars</td>
+                                            <td>95%</td>
+                                            <td>≥ 90%</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Enrollment & Progress</td>
+                                            <td>Retention Rate</td>
+                                            <td>72.4%</td>
+                                            <td>≥ 95%</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 76%;" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Engagement</td>
+                                            <td>Extracurricular Participation</td>
+                                            <td>52.6%</td>
+                                            <td>≥ 60%</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: 88%;" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Post-Program Outcome</td>
+                                            <td>Unemployment rate (Alumni)</td>
+                                            <td>19.7%</td>
+                                            <td>10%</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 51%;" aria-valuenow="51" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Performance Chart -->
+                            <h5 class="mt-4">Performance Analysis</h5>
+                            <div style="height: 180px;">
+                                <canvas id="results-performance-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Logic Model Tab -->
+                        <div class="tab-pane fade" id="pills-logic" role="tabpanel" aria-labelledby="pills-logic-tab">
+                            <h5>Mo Dewji Foundation Education Program Logic Model</h5>
+                            <p>The Logic Model illustrates how program resources and activities lead to intended outcomes.</p>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered logic-model">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="bg-secondary text-white">Inputs</th>
+                                            <th class="bg-info text-white">Activities</th>
+                                            <th class="bg-primary text-white">Outputs</th>
+                                            <th class="bg-warning text-dark">Outcomes</th>
+                                            <th class="bg-danger text-white">Impact</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <ul>
+                                                    <li>Scholarship funding</li>
+                                                    <li>Program staff</li>
+                                                    <li>Mentors</li>
+                                                    <li>Partner universities (20)</li>
+                                                    <li>Training materials</li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <ul>
+                                                    <li>Scholar selection</li>
+                                                    <li>Scholarship disbursement</li>
+                                                    <li>Academic monitoring</li>
+                                                    <li>Mentorship sessions</li>
+                                                    <li>Workshops & trainings</li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <ul>
+                                                    <li>Scholars enrolled</li>
+                                                    <li>Mentorship connections</li>
+                                                    <li>Training sessions completed</li>
+                                                    <li>Monthly check-ins conducted</li>
+                                                    <li>Academic support provided</li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <p><strong>Short-term:</strong></p>
+                                                <ul>
+                                                    <li>Improved academic performance</li>
+                                                    <li>Increased engagement</li>
+                                                    <li>Enhanced leadership skills</li>
+                                                </ul>
+                                                <p><strong>Long-term:</strong></p>
+                                                <ul>
+                                                    <li>Higher employment rates</li>
+                                                    <li>Alumni engagement</li>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <p>National human capital development and equity in higher education</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">External Factors</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul>
+                                                <li>Economic conditions in Tanzania</li>
+                                                <li>Job market opportunities</li>
+                                                <li>Government education policies</li>
+                                                <li>University quality and standards</li>
+                                                <li>Family support for scholars</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">Assumptions</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul>
+                                                <li>Scholars remain committed to their studies</li>
+                                                <li>Mentorship relationships are effective</li>
+                                                <li>Universities maintain quality education</li>
+                                                <li>Graduates seek employment opportunities</li>
+                                                <li>Alumni maintain connection with foundation</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Results Performance Chart
+    var ctx = document.getElementById('results-performance-chart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Gender Balance', 'High Performing Scholars', 'Retention Rate', 'Extracurricular Participation', 'Unemployment Rate'],
+            datasets: [
+                {
+                    label: 'Current',
+                    data: [95, 100, 76, 88, 51],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.6)',
+                        'rgba(40, 167, 69, 0.6)',
+                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(23, 162, 184, 0.6)',
+                        'rgba(220, 53, 69, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                },
+                {
+                    label: 'Target',
+                    data: [100, 90, 95, 100, 100],
+                    backgroundColor: 'rgba(108, 117, 125, 0.2)',
+                    borderColor: 'rgba(108, 117, 125, 0.8)',
+                    borderWidth: 1,
+                    type: 'line'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Progress (%)'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+/* Results Framework Styles */
+.results-chain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.results-level {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.results-level h6 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.results-level p, .results-level ul {
+    margin-bottom: 0;
+}
+
+.results-level ul {
+    padding-left: 20px;
+}
+
+.impact {
+    background-color: #dc3545;
+    color: white;
+    text-align: center;
+}
+
+.outcomes {
+    background-color: #ffc107;
+}
+
+.outputs {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.results-arrow {
+    font-size: 24px;
+    margin: 5px 0;
+    color: #6c757d;
+}
+
+/* Logic Model Styles */
+.logic-model th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.logic-model td {
+    vertical-align: top;
+    width: 20%;
+}
+
+.logic-model ul {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+</style>
+{% endblock %} 

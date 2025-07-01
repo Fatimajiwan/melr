@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>{{ project.name }}</h1>
+            <p class="lead">{{ project.description }}</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Status</h5>
+                    <p class="card-text"><span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'completed' %}secondary{% elif project.status == 'planning' %}info{% else %}warning{% endif %}">{{ project.status|title }}</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Start Date</h5>
+                    <p class="card-text">{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else 'Not set' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">End Date</h5>
+                    <p class="card-text">{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else 'Not set' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Indicators</h5>
+                    <p class="card-text">{{ project.indicators|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Project Duration</h5>
+                    <p>Project is {% if project.start_date and project.end_date %}{{ ((project.end_date - project.start_date).days // 30) }}{% else %}N/A{% endif %} months in duration</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('main.project_dashboard', project_id=project.id) }}">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_logframe', project_id=project.id) }}">Logical Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_toc', project_id=project.id) }}">Theory of Change</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_results', project_id=project.id) }}">Results Framework</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_indicators', project_id=project.id) }}">Indicators</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Project Overview</h5>
+                    <p class="card-text">This dashboard provides an overview of your project's progress and key metrics.</p>
+                    
+                    <!-- Key Indicators Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Key Indicators</h5>
+                            <div class="row">
+                                {% for indicator in project.indicators[:4] %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ indicator.name }}</h6>
+                                            <p class="small text-muted">{{ indicator.description }}</p>
+                                            
+                                            <div class="progress mb-2" style="height: 15px;">
+                                                {% set progress = (indicator.current_value / indicator.target_value * 100)|int if indicator.target_value and indicator.target_value > 0 and indicator.current_value is not none else 0 %}
+                                                <div class="progress-bar {% if progress >= 75 %}bg-success{% elif progress >= 50 %}bg-info{% elif progress >= 25 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ progress }}%;" 
+                                                     aria-valuenow="{{ indicator.current_value }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="{{ indicator.target_value }}">
+                                                    {{ progress }}%
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <div><small>Baseline: <strong>{{ indicator.baseline }}</strong></small></div>
+                                                <div><small>Current: <strong>{{ indicator.current_value }}</strong></small></div>
+                                                <div><small>Target: <strong>{{ indicator.target_value }}</strong></small></div>
+                                            </div>
+                                            
+                                            <div style="height: 150px;">
+                                                <canvas id="indicator-chart-{{ indicator.id }}"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Project Timeline</h6>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Project Start</h6>
+                                                <p>{{ project.start_date.strftime('%b %d, %Y') if project.start_date else 'Not set' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-primary"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Current</h6>
+                                                <p>Project is {% if project.start_date and project.end_date %}{{ ((project.end_date - project.start_date).days // 30) }}{% else %}N/A{% endif %} months in duration</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-secondary"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Project End</h6>
+                                                <p>{{ project.end_date.strftime('%b %d, %Y') if project.end_date else 'Not set' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mt-4">Actions</h6>
+                            <div class="list-group">
+                                <a href="{{ url_for('main.project_indicators', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                    Manage Indicators
+                                </a>
+                                <a href="{{ url_for('main.project_logframe', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                    View Logical Framework
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    Generate Report
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    Export Data
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Overall Progress</h6>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div style="height: 180px;">
+                                        <canvas id="overall-progress-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Overall progress chart
+    var ctx = document.getElementById('overall-progress-chart').getContext('2d');
+    var overallChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: [{% for indicator in project.indicators %}'{{ indicator.name }}',{% endfor %}],
+            datasets: [{
+                label: 'Current Values',
+                data: [{% for indicator in project.indicators %}{{ (indicator.current_value / indicator.target_value * 100)|int if indicator.target_value and indicator.target_value > 0 and indicator.current_value is not none else 0 }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+    
+    // Individual indicator charts
+    {% for indicator in project.indicators[:4] %}
+    fetch('/api/indicator/{{ indicator.id }}/measurements')
+        .then(response => response.json())
+        .then(data => {
+            var dates = data.map(item => new Date(item.date).toLocaleDateString());
+            var values = data.map(item => item.value);
+            
+            var ctx = document.getElementById('indicator-chart-{{ indicator.id }}').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '{{ indicator.name }}',
+                        data: values,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    {% endfor %}
+});
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+.timeline:before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+    left: 7px;
+    top: 0;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline-marker {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    left: 0;
+    top: 5px;
+}
+.timeline-content {
+    margin-left: 30px;
+}
+.timeline-title {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle online/offline status
+    function updateOnlineStatus() {
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        if (navigator.onLine) {
+            offlineIndicator.classList.remove('show');
+        } else {
+            offlineIndicator.classList.add('show');
+        }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Handle indicator form submission
+    document.getElementById('saveIndicator').addEventListener('click', async function() {
+        const form = document.getElementById('addIndicatorForm');
+        const formData = {
+            name: document.getElementById('indicatorName').value,
+            description: document.getElementById('indicatorDescription').value,
+            unit: document.getElementById('indicatorUnit').value,
+            baseline: parseFloat(document.getElementById('indicatorBaseline').value),
+            target: parseFloat(document.getElementById('indicatorTarget').value),
+            frequency: document.getElementById('indicatorFrequency').value,
+            project_id: {{ project.id }}
+        };
+
+        try {
+            const response = await fetch('/api/indicators', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Failed to save indicator');
+            }
+        } catch (error) {
+            // Store offline if network error
+            if (!navigator.onLine) {
+                await storeOfflineData('indicators', formData);
+                alert('Indicator saved offline. Will sync when online.');
+            } else {
+                alert('Error saving indicator: ' + error.message);
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

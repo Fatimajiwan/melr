@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Indicators</h1>
+    <div class="row mt-4">
+        {% if indicators %}
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Target Value</th>
+                        <th>Current Value</th>
+                        <th>Unit</th>
+                        <th>Project</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for indicator in indicators %}
+                    <tr>
+                        <td>{{ indicator.name }}</td>
+                        <td>{{ indicator.description }}</td>
+                        <td>{{ indicator.target_value }}</td>
+                        <td>{{ indicator.current_value }}</td>
+                        <td>{{ indicator.unit }}</td>
+                        <td>{{ indicator.project.name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="col">
+            <p>No indicators found.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

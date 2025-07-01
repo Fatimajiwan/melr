@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - Education Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Education Dashboard</li>
+        </ol>
+    </nav>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h1>{{ project.name }}</h1>
+            <p class="lead">{{ project.description }}</p>
+        </div>
+    </div>
+    
+    <!-- Education Program Navigation -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('main.education_dashboard', project_id=project.id) }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.education_kpis', project_id=project.id) }}">KPIs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.education_scholars', project_id=project.id) }}">Scholars</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.education_surveys', project_id=project.id) }}">Surveys</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.scholar_check_ins', project_id=project.id) }}">Check-ins</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.mentorship_sessions', project_id=project.id) }}">Mentorship</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.project_logframe', project_id=project.id) }}">Frameworks</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Mo Dewji Foundation Education Program</h5>
+                    <p class="card-text">Monitoring and Evaluation Dashboard for the Education Program</p>
+                    
+                    <!-- Program Overview -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">Program Status</h6>
+                                    <p class="card-text"><span class="badge bg-success">Active</span></p>
+                                    <p class="small text-muted">Academic Year 2024-2025</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">Scholars</h6>
+                                    <p class="card-text">
+                                        <span class="h3">{{ kpi_categories|length }}</span>
+                                    </p>
+                                    <p class="small text-muted">Currently enrolled</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">Partner Universities</h6>
+                                    <p class="card-text">
+                                        <span class="h3">20</span>
+                                    </p>
+                                    <p class="small text-muted">Across Tanzania</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">Overall Progress</h6>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 72%;" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <p class="small text-muted mt-2">72% of targets achieved</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Metrics -->
+                    <h5 class="mt-4">Key Performance Indicators</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Demographics</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Gender Balance</span>
+                                        <span>47.3% / 52.7%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 95%;" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    
+                                    <div style="height: 120px;">
+                                        <canvas id="gender-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Academic Performance</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>High Performing Scholars (GPA ≥ 3.5)</span>
+                                        <span>95%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    
+                                    <div style="height: 120px;">
+                                        <canvas id="academic-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Enrollment & Progress</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Retention Rate</span>
+                                        <span>72.4%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 76%;" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    
+                                    <div style="height: 120px;">
+                                        <canvas id="retention-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Post-Program Outcome</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Unemployment Rate (Alumni)</span>
+                                        <span>19.7%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 51%;" aria-valuenow="51" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    
+                                    <div style="height: 120px;">
+                                        <canvas id="employment-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Theory of Change -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Theory of Change</h5>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="row g-2">
+                                        <div class="col">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-secondary text-white text-center py-1">
+                                                    <small>Problem</small>
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <small>Talented Tanzanian youth lack access to higher education</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <div class="toc-arrow">→</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-info text-white text-center py-1">
+                                                    <small>Inputs</small>
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <small>Scholarships, Mentors, Training</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <div class="toc-arrow">→</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-primary text-white text-center py-1">
+                                                    <small>Outputs</small>
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <small>Scholars enrolled, Training completed</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <div class="toc-arrow">→</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-success text-white text-center py-1">
+                                                    <small>Outcomes</small>
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <small>Higher employment rates, Alumni engagement</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <div class="toc-arrow">→</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-danger text-white text-center py-1">
+                                                    <small>Impact</small>
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <small>National human capital development</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- M&E Calendar -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">M&E Calendar</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Month</th>
+                                                    <th>Planned M&E Activities</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>May – June</td>
+                                                    <td>Finalize KPIs and update the M&E Plan</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>July – August</td>
+                                                    <td>Build survey forms and academic/advisory support logs</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>September – October</td>
+                                                    <td>Monitor scholar application cycle</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>November – December</td>
+                                                    <td>Begin baseline data collection (GPA, participation)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>January – February</td>
+                                                    <td>Conduct mid-year check-in and reflection meeting</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>March – April</td>
+                                                    <td>Evaluate year-end KPI performance</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Recent Activity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item px-0">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">Monthly Check-in Completed</h6>
+                                                <small>3 days ago</small>
+                                            </div>
+                                            <p class="mb-1">15 scholars completed their monthly check-in</p>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">KPI Data Updated</h6>
+                                                <small>1 week ago</small>
+                                            </div>
+                                            <p class="mb-1">Academic performance metrics updated for Q2</p>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">New Survey Created</h6>
+                                                <small>2 weeks ago</small>
+                                            </div>
+                                            <p class="mb-1">Alumni Outcome Survey for 2023 graduates</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gender Balance Chart
+    var genderCtx = document.getElementById('gender-chart').getContext('2d');
+    var genderChart = new Chart(genderCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Male', 'Female'],
+            datasets: [{
+                data: [47.3, 52.7],
+                backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)'],
+                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Academic Performance Chart
+    var academicCtx = document.getElementById('academic-chart').getContext('2d');
+    var academicChart = new Chart(academicCtx, {
+        type: 'bar',
+        data: {
+            labels: ['GPA ≥ 3.5', 'GPA < 3.5'],
+            datasets: [{
+                data: [95, 5],
+                backgroundColor: ['rgba(40, 167, 69, 0.7)', 'rgba(220, 53, 69, 0.7)'],
+                borderColor: ['rgba(40, 167, 69, 1)', 'rgba(220, 53, 69, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Retention Chart
+    var retentionCtx = document.getElementById('retention-chart').getContext('2d');
+    var retentionChart = new Chart(retentionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Current', 'Target'],
+            datasets: [{
+                data: [72.4, 95],
+                backgroundColor: ['rgba(255, 193, 7, 0.7)', 'rgba(108, 117, 125, 0.3)'],
+                borderColor: ['rgba(255, 193, 7, 1)', 'rgba(108, 117, 125, 0.8)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Employment Chart
+    var employmentCtx = document.getElementById('employment-chart').getContext('2d');
+    var employmentChart = new Chart(employmentCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Employed', 'Unemployed', 'Target Unemployed'],
+            datasets: [{
+                data: [80.3, 19.7, 10],
+                backgroundColor: ['rgba(40, 167, 69, 0.7)', 'rgba(220, 53, 69, 0.7)', 'rgba(108, 117, 125, 0.3)'],
+                borderColor: ['rgba(40, 167, 69, 1)', 'rgba(220, 53, 69, 1)', 'rgba(108, 117, 125, 0.8)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.toc-arrow {
+    font-size: 18px;
+    color: #6c757d;
+    font-weight: bold;
+}
+</style>
+{% endblock %} 

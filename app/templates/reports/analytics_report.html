@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Report - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_reports', project_id=project.id) }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Analytics Report</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Generate Analytics Report</h1>
+                    <p class="text-muted">Create advanced analytics with trend analysis and predictions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.generate_analytics_report', project_id=project.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-4">
+                            <h5>Analysis Type</h5>
+                            <select class="form-select" name="analysis_type" required>
+                                <option value="trend">Trend Analysis</option>
+                                <option value="comparative">Comparative Analysis</option>
+                                <option value="forecasting">Forecasting</option>
+                                <option value="correlation">Correlation Analysis</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Time Range</h5>
+                            <select class="form-select" name="time_range" required>
+                                <option value="3_months">Last 3 Months</option>
+                                <option value="6_months">Last 6 Months</option>
+                                <option value="1_year">Last Year</option>
+                                <option value="2_years">Last 2 Years</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Analysis Options</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_predictions" value="true" id="includePredictions">
+                                <label class="form-check-label" for="includePredictions">
+                                    Include Predictions
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_benchmarks" value="true" id="includeBenchmarks">
+                                <label class="form-check-label" for="includeBenchmarks">
+                                    Include Industry Benchmarks
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="include_recommendations" value="true" id="includeRecommendations">
+                                <label class="form-check-label" for="includeRecommendations">
+                                    Include Recommendations
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Report Format</h5>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" value="pdf" id="formatPdf" checked>
+                                <label class="form-check-label" for="formatPdf">
+                                    PDF Document
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" value="excel" id="formatExcel">
+                                <label class="form-check-label" for="formatExcel">
+                                    Excel Spreadsheet
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-chart-line me-2"></i>Generate Analytics Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Report Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-chart-line fa-3x text-muted"></i>
+                    </div>
+                    <p class="text-muted text-center">Select analysis options to see a preview of your report.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Scholar Performance Report - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_reports', project_id=project.id) }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Scholar Performance Report</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Scholar Performance Report</h1>
+                    <p class="text-muted">Comprehensive analysis of scholar performance and engagement</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Statistics -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Overview Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Total Scholars</h6>
+                                    <h2 class="mb-0">{{ stats.total_scholars }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Active Scholars</h6>
+                                    <h2 class="mb-0">{{ stats.active_scholars }}</h2>
+                                    <small>{{ (stats.active_scholars / stats.total_scholars * 100)|round }}% of total</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Average GPA</h6>
+                                    <h2 class="mb-0">{{ stats.average_gpa }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Engagement Rate</h6>
+                                    <h2 class="mb-0">{{ stats.engagement_rate }}%</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Performance -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Academic Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="gpaDistributionChart" height="300"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="coursePerformanceChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scholar List -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Scholar Performance Details</h5>
+                    <div class="input-group" style="width: 300px;">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search scholars...">
+                        <button class="btn btn-outline-secondary btn-sm" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Scholar</th>
+                                    <th>Status</th>
+                                    <th>GPA</th>
+                                    <th>Courses</th>
+                                    <th>Attendance</th>
+                                    <th>Engagement</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for scholar in scholars %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ scholar.avatar_url }}" class="rounded-circle me-2" width="32" height="32">
+                                            <div>
+                                                <h6 class="mb-0">{{ scholar.name }}</h6>
+                                                <small class="text-muted">{{ scholar.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if scholar.status == 'Active' %}bg-success{% elif scholar.status == 'At Risk' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ scholar.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ scholar.gpa }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if scholar.course_progress >= 100 %}bg-success{% elif scholar.course_progress >= 75 %}bg-info{% elif scholar.course_progress >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ scholar.course_progress }}%;" 
+                                                 aria-valuenow="{{ scholar.course_progress }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ scholar.course_progress }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ scholar.attendance_rate }}%</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if scholar.engagement_rate >= 80 %}bg-success{% elif scholar.engagement_rate >= 60 %}bg-info{% elif scholar.engagement_rate >= 40 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ scholar.engagement_rate }}%;" 
+                                                 aria-valuenow="{{ scholar.engagement_rate }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ scholar.engagement_rate }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-secondary" data-action="view-details" data-scholar-id="{{ scholar.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" data-action="download-transcript" data-scholar-id="{{ scholar.id }}">
+                                                <i class="fas fa-file-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engagement Analysis -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Engagement Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Top Performing Scholars</h6>
+                            <ul class="list-group">
+                                {% for scholar in top_performers %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ scholar.name }}
+                                    <span class="badge bg-primary rounded-pill">{{ scholar.gpa }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Scholars Needing Support</h6>
+                            <ul class="list-group">
+                                {% for scholar in support_needed %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">{{ scholar.name }}</h6>
+                                            <small class="text-muted">{{ scholar.reason }}</small>
+                                        </div>
+                                        <span class="badge bg-warning">{{ scholar.gpa }}</span>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function exportToPDF() {
+    // Implement PDF export functionality
+    window.print();
+}
+
+function exportToExcel() {
+    // Implement Excel export functionality
+    alert('Excel export functionality will be implemented soon.');
+}
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    // GPA Distribution Chart
+    const gpaCtx = document.getElementById('gpaDistributionChart').getContext('2d');
+    new Chart(gpaCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ gpa_distribution.labels|tojson }},
+            datasets: [{
+                label: 'Number of Scholars',
+                data: {{ gpa_distribution.data|tojson }},
+                backgroundColor: '#4e73df'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'GPA Distribution'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Course Performance Chart
+    const courseCtx = document.getElementById('coursePerformanceChart').getContext('2d');
+    new Chart(courseCtx, {
+        type: 'radar',
+        data: {
+            labels: {{ course_performance.labels|tojson }},
+            datasets: [{
+                label: 'Average Performance',
+                data: {{ course_performance.data|tojson }},
+                backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                borderColor: '#4e73df',
+                pointBackgroundColor: '#4e73df'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Course Performance Overview'
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

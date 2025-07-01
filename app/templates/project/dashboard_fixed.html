@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">{{ project.name }}</h2>
+                    <p class="text-muted">{{ project.description }}</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Project Status</h5>
+                                    <p>Status: {{ project.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Project Duration</h5>
+                                    <p>Project is {% if project.start_date and project.end_date %}{{ ((project.end_date - project.start_date).days / 30)|int }}{% else %}N/A{% endif %} months in duration</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Project Budget</h5>
+                                    <p>Budget: ${{ "{:,.2f}".format(project.budget) if project.budget else 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Project Timeline</h6>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Project Start</h6>
+                                                <p>{{ project.start_date.strftime('%b %d, %Y') if project.start_date else 'Not set' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-primary"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Current</h6>
+                                                <p>Project is {% if project.start_date and project.end_date %}{{ ((project.end_date - project.start_date).days / 30)|int }}{% else %}N/A{% endif %} months in duration</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker bg-secondary"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">Project End</h6>
+                                                <p>{{ project.end_date.strftime('%b %d, %Y') if project.end_date else 'Not set' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mt-4">Actions</h6>
+                            <div class="list-group">
+                                <a href="{{ url_for('main.project_indicators', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                    Manage Indicators
+                                </a>
+                                <a href="{{ url_for('main.project_logframe', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                    View Logical Framework
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    Generate Report
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    Export Data
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Overall Progress</h6>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div style="height: 180px;">
+                                        <canvas id="overall-progress-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Overall progress chart
+    var ctx = document.getElementById('overall-progress-chart').getContext('2d');
+    var overallChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: [{% for indicator in project.indicators %}'{{ indicator.name }}',{% endfor %}],
+            datasets: [{
+                label: 'Current Values',
+                data: [{% for indicator in project.indicators %}{{ (indicator.current_value / indicator.target_value * 100)|int if indicator.target_value and indicator.target_value > 0 and indicator.current_value is not none else 0 }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+.timeline:before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+    left: 7px;
+    top: 0;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline-marker {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    left: 0;
+    top: 5px;
+}
+.timeline-content {
+    margin-left: 30px;
+}
+.timeline-title {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %} 

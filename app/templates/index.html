@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-0 mt-4">M&E Dashboard</h1>
+            <p class="text-muted">Welcome to your Monitoring and Evaluation Dashboard</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Stats Cards -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <h3>{{ projects|length }}</h3>
+                <p>Total Projects</p>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card success">
+                <h3>{{ indicators|length }}</h3>
+                <p>Active Indicators</p>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card warning">
+                <h3>{{ indicators_at_risk }}</h3>
+                <p>Indicators at Risk</p>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card danger">
+                <h3>{{ upcoming_deadlines }}</h3>
+                <p>Upcoming Deadlines</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Recent Projects -->
+        <div class="col-xl-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Projects</h5>
+                    <a href="{{ url_for('main.projects') }}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in projects[:5] %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light rounded me-2 d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-project-diagram text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <a href="{{ url_for('main.project_dashboard', project_id=project.id) }}" class="text-decoration-none text-reset fw-medium">{{ project.name }}</a>
+                                                <div class="small text-muted">{{ project.start_date|default('No date', true) }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                    <td style="width: 20%;">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('main.project_dashboard', project_id=project.id) }}" class="btn btn-sm btn-light"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="col-xl-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">New indicator added to <a href="#" class="fw-medium">Educational Access Initiative</a></p>
+                                    <p class="text-muted small mb-0">5 minutes ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">Measurement updated for <a href="#" class="fw-medium">Student Enrollment Rate</a></p>
+                                    <p class="text-muted small mb-0">1 hour ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-warning text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0">KPI <a href="#" class="fw-medium">Teacher Retention Rate</a> is at risk</p>
+                                    <p class="text-muted small mb-0">2 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm bg-info text-white rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0"><a href="#" class="fw-medium">Water Access Project</a> was updated</p>
+                                    <p class="text-muted small mb-0">Yesterday</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

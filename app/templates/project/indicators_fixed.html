@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">{{ project.name }}</h2>
+                    <p class="lead">{{ project.description }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Indicators</h5>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIndicatorModal">
+                            <i class="fas fa-plus me-2"></i>Add Indicator
+                        </button>
+                    </div>
+                    
+                    {% if indicators %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Baseline</th>
+                                    <th>Current</th>
+                                    <th>Target</th>
+                                    <th>Unit</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for indicator in indicators %}
+                                {% set progress = (indicator.current_value / indicator.target_value * 100)|int if indicator.target_value and indicator.target_value > 0 and indicator.current_value is not none else 0 %}
+                                <tr>
+                                    <td class="fw-medium">{{ indicator.name }}</td>
+                                    <td>{{ indicator.description }}</td>
+                                    <td>{{ indicator.baseline }}</td>
+                                    <td>{{ indicator.current_value }}</td>
+                                    <td>{{ indicator.target_value }}</td>
+                                    <td>{{ indicator.unit }}</td>
+                                    <td>
+                                        {% if progress >= 90 %}
+                                        <span class="badge bg-success">On Target</span>
+                                        {% elif progress >= 70 %}
+                                        <span class="badge bg-info">Good Progress</span>
+                                        {% elif progress >= 40 %}
+                                        <span class="badge bg-warning">Needs Attention</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">At Risk</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" id="dropdownMenuButton{{ indicator.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ indicator.id }}">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#measurementModal" 
+                                                        data-action="add-measurement" data-indicator-id="{{ indicator.id }}" data-indicator-name="{{ indicator.name }}">
+                                                    <i class="fas fa-chart-line me-2"></i> Add Data
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewMeasurementsModal"
+                                                        data-action="view-measurements" data-indicator-id="{{ indicator.id }}" data-indicator-name="{{ indicator.name }}">
+                                                    <i class="fas fa-history me-2"></i> View History
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editIndicatorModal"
+                                                        data-action="edit-indicator" data-indicator-id="{{ indicator.id }}">
+                                                    <i class="fas fa-edit me-2"></i> Edit
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" 
+                                                        data-action="delete-indicator" data-indicator-id="{{ indicator.id }}">
+                                                    <i class="fas fa-trash me-2"></i> Delete
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <p>No indicators found for this project. Click "Add Indicator" to get started.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if indicators %}
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Data Visualization</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="indicatorSelect" class="form-label">Select Indicator</label>
+                                <select class="form-control" id="indicatorSelect" onchange="updateChartData()">
+                                    {% for indicator in indicators %}
+                                    <option value="{{ indicator.id }}">{{ indicator.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="chart-container" style="position: relative; height:180px; max-height:180px;">
+                                <canvas id="indicatorChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">KPI Status</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for indicator in indicators %}
+                                {% set progress = (indicator.current_value / indicator.target_value * 100)|int if indicator.target_value and indicator.target_value > 0 and indicator.current_value is not none else 0 %}
+                                <div class="list-group-item border-0 px-3 py-2">
+                                    <div class="d-flex w-100 justify-content-between mb-1">
+                                        <h6 class="mb-0 small">{{ indicator.name }}</h6>
+                                        <small>{{ progress }}%</small>
+                                    </div>
+                                    <div class="progress" style="height: 3px;">
+                                        <div class="progress-bar {% if progress >= 90 %}bg-success{% elif progress >= 70 %}bg-info{% elif progress >= 40 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex w-100 justify-content-between mt-1">
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{ indicator.baseline }}</small>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{ indicator.current_value }}</small>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{ indicator.target_value }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Indicator Modal -->
+<div class="modal fade" id="addIndicatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Indicator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addIndicatorForm" method="POST" action="{{ url_for('main.add_indicator', project_id=project.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Indicator Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="baseline" class="form-label">Baseline</label>
+                                <input type="number" class="form-control" id="baseline" name="baseline" step="any">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="target_value" class="form-label">Target Value</label>
+                                <input type="number" class="form-control" id="target_value" name="target_value" step="any" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="current_value" class="form-label">Current Value</label>
+                                <input type="number" class="form-control" id="current_value" name="current_value" step="any" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="unit" class="form-label">Unit</label>
+                                <input type="text" class="form-control" id="unit" name="unit" placeholder="e.g., %, count, ratio">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="frequency" class="form-label">Measurement Frequency</label>
+                        <select class="form-control" id="frequency" name="frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="annually">Annually</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-action="add-indicator">Save Indicator</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Indicator Modal -->
+<div class="modal fade" id="editIndicatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Indicator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editIndicatorForm" action="{{ url_for('main.edit_indicator', project_id=project.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="indicator_id" id="edit_indicator_id">
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">Indicator Name</label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_baseline" class="form-label">Baseline</label>
+                                <input type="number" class="form-control" id="edit_baseline" name="baseline" step="any">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_target_value" class="form-label">Target Value</label>
+                                <input type="number" class="form-control" id="edit_target_value" name="target_value" step="any" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_current_value" class="form-label">Current Value</label>
+                                <input type="number" class="form-control" id="edit_current_value" name="current_value" step="any" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_unit" class="form-label">Unit</label>
+                                <input type="text" class="form-control" id="edit_unit" name="unit" placeholder="e.g., %, count, ratio">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_frequency" class="form-label">Measurement Frequency</label>
+                        <select class="form-control" id="edit_frequency" name="frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="annually">Annually</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-action="edit-indicator">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Measurement Modal -->
+<div class="modal fade" id="measurementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Measurement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addMeasurementForm" method="POST" action="{{ url_for('main.add_measurement', project_id=project.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="indicator_id" id="measurement_indicator_id">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="value" class="form-label">Value</label>
+                        <input type="number" class="form-control" id="value" name="value" step="any" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-action="add-measurement">Save Measurement</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Measurements Modal -->
+<div class="modal fade" id="viewMeasurementsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Measurement History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Value</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="measurementsTableBody">
+                            <!-- Measurements will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the chart
+    var ctx = document.getElementById('indicatorChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Value',
+                data: [],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+    
+    // Function to update chart data
+    window.updateChartData = function() {
+        var indicatorId = document.getElementById('indicatorSelect').value;
+        fetch('/api/indicator/' + indicatorId + '/measurements')
+            .then(response => response.json())
+            .then(data => {
+                var dates = data.map(item => new Date(item.date).toLocaleDateString());
+                var values = data.map(item => item.value);
+                
+                chart.data.labels = dates;
+                chart.data.datasets[0].data = values;
+                chart.update();
+            });
+    };
+    
+    // Load initial chart data
+    if (document.getElementById('indicatorSelect').value) {
+        updateChartData();
+    }
+    
+    // Handle modal events
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            var action = this.getAttribute('data-action');
+            var indicatorId = this.getAttribute('data-indicator-id');
+            
+            if (action === 'add-measurement') {
+                document.getElementById('measurement_indicator_id').value = indicatorId;
+            } else if (action === 'edit-indicator') {
+                // Load indicator data for editing
+                fetch('/api/indicator/' + indicatorId)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('edit_indicator_id').value = data.id;
+                        document.getElementById('edit_name').value = data.name;
+                        document.getElementById('edit_description').value = data.description;
+                        document.getElementById('edit_baseline').value = data.baseline;
+                        document.getElementById('edit_target_value').value = data.target_value;
+                        document.getElementById('edit_current_value').value = data.current_value;
+                        document.getElementById('edit_unit').value = data.unit;
+                        document.getElementById('edit_frequency').value = data.frequency;
+                    });
+            } else if (action === 'view-measurements') {
+                // Load measurements for viewing
+                fetch('/api/indicator/' + indicatorId + '/measurements')
+                    .then(response => response.json())
+                    .then(data => {
+                        var tbody = document.getElementById('measurementsTableBody');
+                        tbody.innerHTML = '';
+                        data.forEach(measurement => {
+                            var row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${new Date(measurement.date).toLocaleDateString()}</td>
+                                <td>${measurement.value}</td>
+                                <td>${measurement.notes || ''}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-light" onclick="deleteMeasurement(${measurement.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    });
+            }
+        });
+    });
+    
+    // Handle form submissions
+    document.querySelectorAll('[data-action]').forEach(button => {
+        button.addEventListener('click', function() {
+            var action = this.getAttribute('data-action');
+            
+            if (action === 'add-indicator') {
+                document.getElementById('addIndicatorForm').submit();
+            } else if (action === 'edit-indicator') {
+                document.getElementById('editIndicatorForm').submit();
+            } else if (action === 'add-measurement') {
+                document.getElementById('addMeasurementForm').submit();
+            } else if (action === 'delete-indicator') {
+                if (confirm('Are you sure you want to delete this indicator?')) {
+                    var indicatorId = this.getAttribute('data-indicator-id');
+                    fetch('/api/indicator/' + indicatorId, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            }
+        });
+    });
+});
+
+function deleteMeasurement(measurementId) {
+    if (confirm('Are you sure you want to delete this measurement?')) {
+        fetch('/api/measurement/' + measurementId, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+            }
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+}
+</script>
+{% endblock %} 

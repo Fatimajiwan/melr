@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Presentation - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_reports', project_id=project.id) }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Presentation</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Generate Presentation</h1>
+                    <p class="text-muted">Create a PowerPoint presentation ready for stakeholder meetings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('main.generate_presentation', project_id=project.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-4">
+                            <h5>Presentation Template</h5>
+                            <select class="form-select" name="template" required>
+                                <option value="executive">Executive Summary</option>
+                                <option value="detailed">Detailed Analysis</option>
+                                <option value="progress">Progress Update</option>
+                                <option value="custom">Custom Template</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Include Sections</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="sections" value="overview" id="sectionOverview" checked>
+                                <label class="form-check-label" for="sectionOverview">
+                                    Project Overview
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="sections" value="progress" id="sectionProgress" checked>
+                                <label class="form-check-label" for="sectionProgress">
+                                    Progress & Milestones
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="sections" value="kpis" id="sectionKPIs" checked>
+                                <label class="form-check-label" for="sectionKPIs">
+                                    Key Performance Indicators
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="sections" value="risks" id="sectionRisks">
+                                <label class="form-check-label" for="sectionRisks">
+                                    Risks & Mitigation
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="sections" value="financials" id="sectionFinancials">
+                                <label class="form-check-label" for="sectionFinancials">
+                                    Financial Overview
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="sections" value="next_steps" id="sectionNextSteps" checked>
+                                <label class="form-check-label" for="sectionNextSteps">
+                                    Next Steps & Recommendations
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Presentation Options</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_notes" value="true" id="includeNotes">
+                                <label class="form-check-label" for="includeNotes">
+                                    Include Speaker Notes
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="include_handouts" value="true" id="includeHandouts">
+                                <label class="form-check-label" for="includeHandouts">
+                                    Generate Handouts
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-file-powerpoint me-2"></i>Generate Presentation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Presentation Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-file-powerpoint fa-3x text-muted"></i>
+                    </div>
+                    <p class="text-muted text-center">Select sections and options to see a preview of your presentation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,109 @@
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container-fluid px-4">
+        <button class="btn btn-link text-dark p-0 me-3" id="sidebar-toggle" type="button">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <a class="navbar-brand d-lg-none" href="/">
+            <i class="fas fa-chart-line"></i> M&E Dashboard
+        </a>
+        
+        <form class="d-none d-md-flex ms-4 w-50">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                <input type="search" class="form-control form-control-sm bg-light border-0" placeholder="Search...">
+            </div>
+        </form>
+        
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item me-3">
+                <span class="nav-link">
+                    <i class="fas fa-wifi"></i> <span id="connection-status" class="small">Checking...</span>
+                </span>
+            </div>
+            
+            <div class="nav-item dropdown">
+                <a class="nav-link p-0 position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        2
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="width: 320px;">
+                    <li><h6 class="dropdown-header">Notifications</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item py-2" href="#">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar avatar-sm bg-primary text-white rounded">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <p class="mb-0 fw-medium">New measurement added</p>
+                                    <p class="text-muted small mb-0">3 minutes ago</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2" href="#">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="avatar avatar-sm bg-warning text-white rounded">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <p class="mb-0 fw-medium">KPI at risk</p>
+                                    <p class="text-muted small mb-0">1 hour ago</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center small" href="#">View all notifications</a></li>
+                </ul>
+            </div>
+            
+            {% if current_user.is_authenticated %}
+            <div class="nav-item dropdown ms-3">
+                <a class="nav-link dropdown-toggle p-0 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="avatar avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center">
+                        {{ current_user.name[0].upper() }}
+                    </div>
+                    <span class="d-none d-md-inline">{{ current_user.name }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <div class="nav-item ms-3">
+                <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<style>
+    .avatar {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .avatar-sm {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+</style> 

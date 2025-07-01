@@ -1,0 +1,89 @@
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-brand">
+            <i class="fas fa-chart-line"></i>
+            <span class="sidebar-text">M&E Dashboard</span>
+        </a>
+    </div>
+    
+    <!-- Sidebar Menu -->
+    <ul class="sidebar-menu">
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.index') }}" class="sidebar-link {% if request.endpoint == 'main.index' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.projects') }}" class="sidebar-link {% if request.endpoint == 'main.projects' %}active{% endif %}">
+                <i class="fas fa-project-diagram"></i>
+                <span class="sidebar-text">Projects</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.reports') }}" class="sidebar-link {% if request.endpoint == 'main.reports' %}active{% endif %}">
+                <i class="fas fa-file-alt"></i>
+                <span class="sidebar-text">Reports & Analytics</span>
+            </a>
+        </li>
+        
+        <!-- Project-specific navigation, shown only when in a project -->
+        {% if 'project_id' in request.view_args %}
+        <li class="sidebar-header mt-4 mb-2">
+            <span class="sidebar-text text-uppercase small ms-3 text-muted">Current Project</span>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_dashboard', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="sidebar-text">Overview</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_logframe', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_logframe' %}active{% endif %}">
+                <i class="fas fa-sitemap"></i>
+                <span class="sidebar-text">Logical Framework</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_toc', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_toc' %}active{% endif %}">
+                <i class="fas fa-mind-share"></i>
+                <span class="sidebar-text">Theory of Change</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_results', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_results' %}active{% endif %}">
+                <i class="fas fa-chart-line"></i>
+                <span class="sidebar-text">Results Framework</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_indicators', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_indicators' %}active{% endif %}">
+                <i class="fas fa-chart-bar"></i>
+                <span class="sidebar-text">Indicators & KPIs</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_reports', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_reports' %}active{% endif %}">
+                <i class="fas fa-file-alt"></i>
+                <span class="sidebar-text">Project Reports</span>
+            </a>
+        </li>
+        
+        <li class="sidebar-item">
+            <a href="{{ url_for('main.project_calendar', project_id=request.view_args.project_id) }}" class="sidebar-link {% if request.endpoint == 'main.project_calendar' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="sidebar-text">M&E Calendar</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</div> 

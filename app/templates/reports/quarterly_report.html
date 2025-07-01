@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Quarterly Progress Report - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_dashboard', project_id=project.id) }}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.project_reports', project_id=project.id) }}">Reports</a></li>
+                    <li class="breadcrumb-item active">Quarterly Progress Report</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Quarterly Progress Report</h1>
+                    <p class="text-muted">Q{{ quarter }} {{ year }} - {{ project.name }}</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Executive Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Key Achievements</h6>
+                            <ul class="list-unstyled">
+                                {% for achievement in key_achievements %}
+                                <li class="mb-2">
+                                    <i class="fas fa-trophy text-warning me-2"></i>
+                                    {{ achievement }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Challenges & Mitigation</h6>
+                            <ul class="list-unstyled">
+                                {% for challenge in challenges %}
+                                <li class="mb-2">
+                                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                    {{ challenge.description }}
+                                    <small class="d-block text-muted ms-4">Mitigation: {{ challenge.mitigation }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Overview -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Progress Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Activities Completed</h6>
+                                    <h2 class="mb-0">{{ progress.activities_completed }}</h2>
+                                    <small>of {{ progress.total_activities }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Outputs Achieved</h6>
+                                    <h2 class="mb-0">{{ progress.outputs_achieved }}</h2>
+                                    <small>of {{ progress.total_outputs }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">KPIs On Track</h6>
+                                    <h2 class="mb-0">{{ progress.kpis_on_track }}</h2>
+                                    <small>of {{ progress.total_kpis }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Budget Spent</h6>
+                                    <h2 class="mb-0">{{ progress.budget_spent }}%</h2>
+                                    <small>of total budget</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activities Progress -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Activities Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Timeline</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ activity.name }}</td>
+                                    <td>
+                                        <span class="badge {% if activity.status == 'Completed' %}bg-success{% elif activity.status == 'In Progress' %}bg-info{% elif activity.status == 'Delayed' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ activity.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar {% if activity.progress >= 100 %}bg-success{% elif activity.progress >= 75 %}bg-info{% elif activity.progress >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ activity.progress }}%;" 
+                                                 aria-valuenow="{{ activity.progress }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ activity.progress }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ activity.timeline }}</td>
+                                    <td>{{ activity.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Overview -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Financial Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="budgetChart" height="300"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Budget</th>
+                                            <th>Spent</th>
+                                            <th>Remaining</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for category in budget_categories %}
+                                        <tr>
+                                            <td>{{ category.name }}</td>
+                                            <td>{{ category.budget }}</td>
+                                            <td>{{ category.spent }}</td>
+                                            <td>{{ category.remaining }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Quarter Plan -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Next Quarter Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Planned Activities</h6>
+                            <ul class="list-group">
+                                {% for activity in next_quarter_activities %}
+                                <li class="list-group-item">
+                                    <h6 class="mb-1">{{ activity.name }}</h6>
+                                    <p class="mb-1 small text-muted">{{ activity.description }}</p>
+                                    <small>Timeline: {{ activity.timeline }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Risk Management</h6>
+                            <ul class="list-group">
+                                {% for risk in next_quarter_risks %}
+                                <li class="list-group-item">
+                                    <h6 class="mb-1">{{ risk.name }}</h6>
+                                    <p class="mb-1 small text-muted">{{ risk.description }}</p>
+                                    <small>Mitigation: {{ risk.mitigation }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function exportToPDF() {
+    // Implement PDF export functionality
+    window.print();
+}
+
+function exportToExcel() {
+    // Implement Excel export functionality
+    alert('Excel export functionality will be implemented soon.');
+}
+
+// Initialize budget chart
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ budget_labels|tojson }},
+            datasets: [{
+                data: {{ budget_data|tojson }},
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a',
+                    '#36b9cc',
+                    '#f6c23e',
+                    '#e74a3b'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Budget Allocation'
+                },
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 
