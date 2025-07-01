@@ -14,7 +14,6 @@ csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['DEBUG'] = True  # Enable debug mode
 
     db.init_app(app)
     migrate.init_app(app, db)

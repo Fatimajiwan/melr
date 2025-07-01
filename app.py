@@ -1,3 +1,4 @@
+import os
 from app import create_app, db
 from config import Config
 # Import all models to ensure they're registered with SQLAlchemy
@@ -26,4 +27,8 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create tables first
         create_admin()   # Then create admin user
-    app.run(debug=True, port=5002)  # Use port 5002 instead of 5001 
+    
+    # Use environment variables for production settings
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(debug=debug, host='0.0.0.0', port=port) 
